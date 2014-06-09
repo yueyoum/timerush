@@ -155,17 +155,69 @@ Example:
 More info see example
 """
 
-
+import sys
+from docopt import docopt
+from daemonized import Daemonize
 from timerush import TimeRush
 
-def main():
-    tr = TimeRush(
-        interface_kwargs={'listener': ('127.0.0.1', 8081)},
-        backend_kwargs={'host': '127.0.0.1', 'port': 6379},
-        log_level='DEBUG'
-    )
 
-    tr.run()
+USAGE = """
+Usage: start_timerush.py [--host=ARG] [--port=ARG] [--db=ARG] [--key=ARG] [--interval=ARG] [--listen-host=ARG] [--listen-port=ARG] [--pem=ARG] [--level=ARG] [-d] [--logpath=ARG]
+
+--host=ARG    Redis Host [default: 127.0.0.1]
+--port=ARG    Redis Port [default: 6379]
+--db=ARG      Redis DB   [default: 0]
+--key=ARG     Redis KEY  [default: _timerush_redis_data_]
+--interval=ARG      Backend Check Workers Status Interval [default: 60]
+--listen-host=ARG   Interface Listen Host [default: 127.0.0.1]
+--listen-port=ARG   Interface Listen Port [default: 8080]
+--pem=ARG           Interface Notify Https Pem
+--level=ARG         Log Level [default: DEBUG]
+-d                  Daemonize [default: False]
+--logpath=ARG       Log Path
+"""
+
+
+def main():
+    opt = docopt(USAGE)
+    print opt
+    backend_kwargs = {
+        'host': opt['--host'],
+        'port': int(opt['--port']),
+        'db': int(opt['--db']),
+        'data_key': opt['--key'],
+        'check_status_interval': int(opt['--interval']),
+    }
+
+    interface_kwargs = {
+        'listener': (opt['--listen-host'], int(opt['--listen-port'])),
+        'pem': opt['--pem']
+    }
+
+    log_level = opt['--level']
+
+
+    daemon = opt['-d']
+    if daemon:
+        logpath = opt['--logpath']
+        if not logpath:
+            sys.stderr.write("you enable daemonize, So must set the logpath.\n")
+            sys.exit(1)
+
+        if not logpath.startswith('/'):
+            sys.stderr.write("logpath must be absolute path.\n")
+            sys.exit(2)
+
+        Daemonize(stdout=logpath, stderr=logpath).make_daemon()
+
+
+    TimeRush(
+        interface_kwargs=interface_kwargs,
+        backend_kwargs=backend_kwargs,
+        log_level=log_level,
+    ).run()
+
+
 
 if __name__ == '__main__':
     main()

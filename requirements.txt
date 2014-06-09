@@ -4,3 +4,5 @@ redis
 hiredis
 bottle
 requests
+docopt
+daemonized
