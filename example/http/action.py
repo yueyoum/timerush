@@ -1,3 +1,8 @@
+import gevent.monkey
+gevent.monkey.patch_all()
+
+from gevent.pool import Pool
+
 import sys
 import time
 import json
@@ -43,8 +48,10 @@ if __name__ == '__main__':
     if action == '1':
         time_range = int(sys.argv[2])
         amount = int(sys.argv[3])
-        for i in range(amount):
-            register(random.randint(1, time_range))
+
+        pool = Pool(200)
+        seconds_iter = (random.randint(1, time_range) for i in range(amount))
+        pool.map(register, seconds_iter)
     else:
         unregister(sys.argv[2])
 

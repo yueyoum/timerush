@@ -13,7 +13,7 @@ class AbstractBackend(object):
     def install_timerush_object(cls, t):
         cls.timerush = t
 
-    def __init__(self, check_status_interval=10):
+    def __init__(self, check_status_interval=60):
         self.check_status_interval = check_status_interval
         self.workers = {}
 
@@ -23,10 +23,6 @@ class AbstractBackend(object):
     def _check_status(self):
         while True:
             logger.debug("Workers amount: {0}".format(len(self.workers)))
-            for k, v in self.workers.items():
-                if v.successful():
-                    self.notify(v)
-
             gevent.sleep(self.check_status_interval)
 
 
