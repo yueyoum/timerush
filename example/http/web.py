@@ -26,15 +26,15 @@ def callback():
     with open('callback.log', 'a') as f:
         f.write(text)
 
-    return {'ret': 0}
-    # return {
-    #     'ret': 0,
-    #     'data': {
-    #             'callback_cmd': 'http://127.0.0.1:8000/callback/',
-    #             'callback_data': json.dumps({'nimei': 'jixu'}),
-    #             'seconds': 2,
-    #         }
-    # }
+    # return {'ret': 0}
+    return {
+        'ret': 0,
+        'data': {
+                'callback_cmd': 'http://127.0.0.1:8000/callback/',
+                'callback_data': json.dumps({'start': now, 'seconds': 2}),
+                'seconds': 2,
+            }
+    }
 
 
 WSGIServer(('127.0.0.1', 8000), app).serve_forever()

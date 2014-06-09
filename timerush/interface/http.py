@@ -25,7 +25,7 @@ class HTTPInterface(AbstractInterface):
             raise IOError("PEM file not exists. {0}".format(self.pem))
 
 
-    def notify(self, callback_cmd, callback_data, key):
+    def notify(self, callback_cmd, callback_data):
         req_kwargs = {'data': callback_data}
 
         if self.pem:
@@ -55,7 +55,7 @@ class HTTPInterface(AbstractInterface):
         if seconds == 0:
             return True
 
-        self.register(callback_cmd, callback_data, seconds, key=key)
+        self.register(callback_cmd, callback_data, seconds)
         return True
 
 
@@ -97,8 +97,13 @@ class HTTPInterface(AbstractInterface):
                 logger.error(traceback.format_exc())
                 return {'ret': 1, 'msg': 'Invalid Data'}
 
-            self.unregister(key)
-            return {'ret': 0}
+            ttl = self.unregister(key)
+            return {
+                'ret': 0,
+                'data': {
+                    'ttl': ttl
+                }
+            }
 
         server = WSGIServer(self.listener, app)
         server.serve_forever()

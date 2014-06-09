@@ -5,59 +5,76 @@ __date__ = '14-6-7'
 
 
 """
+Protocol
+
+    Start a new timer
+        requests data format:
+        {
+            'callback_cmd':     callback_cmd,    # your system callback location. url for http, ip:port for socket
+            'callback_data':    callback_data,   # a json serialized object. TimeRush will notify your system with this data
+            'seconds':          seconds,         # TimeRush will notify you after this seconds
+        }
+
+        return:
+        {
+            'ret': integer,         # 0 means no error.
+            'msg': string,          # only exist when ret != 0
+            'data': {
+                'key': string,      # only exist when ret == 0
+            }
+        }
+
+        if ret == 0, you will got a key. you can cancel a timer with this key.
+
+    Cancel a timer
+        request data format:
+        {
+            'key': key
+        }
+
+        return:
+        {
+            'ret': integer,     # 0 means no error
+            'msg': string,      # only exist when ret != 0
+            'data': {
+                'ttl': integer, # seconds remaining of this timer
+            }
+        }
+
+    Notify
+        When a timer finish, TimeRush will notify your system with the `callback_data`
+
+        your system return:
+        {
+            'ret': integer,
+            'data': {                               # only exist when you wanna start a new timer
+                'callback_cmd': callback_cmd,
+                'callback_data': callback_data,
+                'seconds': seconds,
+            }
+        }
+
+
+
 Default Backend
     - timerush.backend.redis.RedisBackend
 
-        The default backend needs redis-server version above 2.8.0
-        And redis-server start with this config: notify-keyspace-events Ex
-
-        Documents here:  http://redis.io/topics/notifications
 
 Default Interface
     - timerush.interface.http.HTTPInterface
 
         HTTP interface has two uri for collect requests:
-        (request only support POST method,
-         request data must be a JSON serialized object, and attach in request body directly. not a key value format.
-         timerush will return json object)
+
+        request only support POST method,
+        request data must be a JSON serialized object, and attach in request body directly. not a key value format.
+        timerush will return json object
 
         -   /register/
             start a new timer
 
-            request data format:
-
-            {
-                'callback_cmd':     callback_url,
-                'callback_data':    callback_data,
-                'seconds':          seconds
-            }
-
-            return:
-
-            {
-                'ret': integer,   # 0 means no error.
-                'msg': string,    # only exist when ret != 0
-                'data': {
-                    'key': string,  # only exist when ret == 0
-                }
-            }
-
-            if ret == 0, you will got a key. you can cancel a already registered timer.
 
         -   /unregister/
             cancel a timer
-
-            request data format:
-            {
-                'key': key
-            }
-
-            return:
-            {
-                'ret': integer,     # 0 means no error
-                'msg': string,      # only exist when ret != 0
-            }
-
 
 
 
