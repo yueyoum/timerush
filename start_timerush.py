@@ -46,12 +46,7 @@ Protocol
 
         your system return:
         {
-            'ret': integer,
-            'data': {                               # only exist when you wanna start a new timer
-                'callback_cmd': callback_cmd,
-                'callback_data': callback_data,
-                'seconds': seconds,
-            }
+            'ret': 0,
         }
 
 

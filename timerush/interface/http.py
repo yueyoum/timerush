@@ -39,23 +39,6 @@ class HTTPInterface(AbstractInterface):
             logger.error("Notify Failure!")
             return False
 
-        try:
-            data = req.json()
-            assert data['ret'] == 0
-            seconds = int(data.get('data', {}).get('seconds', 0))
-            assert seconds >= 0
-            if seconds > 0:
-                callback_cmd = data['data']['callback_cmd']
-                callback_data = data['data']['callback_data']
-        except:
-            logger.error("Notify Got Invalid Return Data. {0}".format(req.content))
-            logger.error(traceback.format_exc())
-            return False
-
-        if seconds == 0:
-            return True
-
-        self.register(callback_cmd, callback_data, seconds)
         return True
 
 

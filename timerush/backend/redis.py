@@ -8,13 +8,21 @@ __date__ = '14-6-7'
 import logging
 import uuid
 import json
-import time
 import redis
+import arrow
 
 from timerush.backend import AbstractBackend
 
 
 logger = logging.getLogger('timerush.backend.redis')
+
+
+def get_ttl(seconds, start, now=None):
+    if not now:
+        now = arrow.utcnow().timestamp
+
+    ttl = seconds - (now - start)
+    return ttl if ttl > 0 else 0
 
 
 
@@ -31,19 +39,17 @@ class RedisBackend(AbstractBackend):
     def pre_load(self):
         data = self.r.hgetall(self.data_key)
 
-        now = int(time.time())
+        now = arrow.utcnow().timestamp
         for _key, _data in data.iteritems():
             _data = json.loads(_data)
-            ttl = _data['seconds'] - (now - _data['start'])
-            if ttl < 0:
-                ttl = 0
+            ttl = get_ttl(_data['seconds'], _data['start'], now=now)
 
             self.start_worker(_data['cmd'], _data['data'], ttl, key=_key)
 
 
     def add(self, callback_cmd, callback_data, seconds):
         key = str(uuid.uuid4())
-        start = int(time.time())
+        start = arrow.utcnow().timestamp
 
         data = {
             'cmd': callback_cmd,
@@ -68,9 +74,7 @@ class RedisBackend(AbstractBackend):
             return 0
 
         data = json.loads(data)
-        ttl = data['seconds'] - (int(time.time()) - data['start'])
-        if ttl < 0:
-            ttl = 0
+        ttl = get_ttl(data['seconds'], data['start'])
 
         self.r.hdel(self.data_key, key)
         return ttl
