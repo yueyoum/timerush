@@ -1,0 +1,6 @@
+cython
+git+git://github.com/surfly/gevent.git#egg=gevent
+redis
+hiredis
+bottle
+requests
