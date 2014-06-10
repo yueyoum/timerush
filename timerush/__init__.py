@@ -22,9 +22,13 @@ LOG_LEVEL_TABLE = {
 }
 
 
-
 class TimeRush(object):
-    def __init__(self, INTERFACE_CLASS=None, BACKEND_CLASS=None, interface_kwargs=None, backend_kwargs=None, log_level='DEBUG'):
+    def __init__(self,
+                 INTERFACE_CLASS=None,
+                 BACKEND_CLASS=None,
+                 interface_kwargs=None,
+                 backend_kwargs=None,
+                 log_level='DEBUG'):
         INTERFACE= INTERFACE_CLASS or HTTPInterface
         BACKEND = BACKEND_CLASS or RedisBackend
 
