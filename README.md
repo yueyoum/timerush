@@ -89,6 +89,26 @@
 0            | 4560 | 45.6%
 1            | 5440 | 54.4%
 
+## Command-line args
+
+    --host=ARG    Redis Host [default: 127.0.0.1]
+    --port=ARG    Redis Port [default: 6379]
+    --db=ARG      Redis DB   [default: 0]
+    --key=ARG     Redis KEY  [default: _timerush_redis_data_]
+    --interval=ARG      Backend Dump Workers Status Interval [default: 60]
+    --listen-host=ARG   Interface Listen Host [default: 127.0.0.1]
+    --listen-port=ARG   Interface Listen Port [default: 8080]
+    --pem=ARG           Interface Notify Https Pem
+    --level=ARG         Log Level [default: DEBUG]
+    -d                  Daemonize [default: False]
+    --logpath=ARG       Log Path
+
+
+如果不指定 --pem， 那么http interface 将以 http 的方式去notify your system
+
+否则，就会以https的方式。
+
+这个的用处就是你的系统调用接口是HTTPS，并且开启的客户端验证，这个pem就是客户端凭证，只有带着这个凭证，才能通过客户端验证。
 
 
 
