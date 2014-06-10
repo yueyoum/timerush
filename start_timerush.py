@@ -131,22 +131,6 @@ Example:
 
     this timer will be complete.
 
-    or you return
-
-    {
-        'ret': 0,
-        'data': {
-            'callback_cmd': 'http://your_system_domain/timerush/',
-            'callback_data': {'name': 'a', 'from': 'you', 'time': 80},
-            'seconds': 20,
-        }
-    }
-
-    TimeRush will start a new timer, which after 20 seconds will notify your system again.
-
-    NOTICE the time is 80, because when the second notify arrival your system,
-    the time actually passed 80 seconds.
-
 More info see example
 """
 
