@@ -141,7 +141,7 @@ from timerush import TimeRush
 
 
 USAGE = """
-Usage: start_timerush.py [--host=ARG] [--port=ARG] [--db=ARG] [--key=ARG] [--interval=ARG] [--listen-host=ARG] [--listen-port=ARG] [--pem=ARG] [--level=ARG] [-d] [--logpath=ARG]
+Usage: start_timerush.py [options]
 
 --host=ARG    Redis Host [default: 127.0.0.1]
 --port=ARG    Redis Port [default: 6379]
@@ -154,31 +154,32 @@ Usage: start_timerush.py [--host=ARG] [--port=ARG] [--db=ARG] [--key=ARG] [--int
 --level=ARG         Log Level [default: DEBUG]
 -d                  Daemonize [default: False]
 --logpath=ARG       Log Path
+-c, --config=FILE   Config File. Arguments in the config file will overwrite the same arguments from command line
 """
 
-
-def main():
+def get_opts():
     opt = docopt(USAGE)
-    print opt
-    backend_kwargs = {
-        'host': opt['--host'],
-        'port': int(opt['--port']),
-        'db': int(opt['--db']),
-        'data_key': opt['--key'],
-        'check_status_interval': int(opt['--interval']),
-    }
+    def _load_config(_f):
+        if not _f:
+            return {}
 
-    interface_kwargs = {
-        'listener': (opt['--listen-host'], int(opt['--listen-port'])),
-        'pem': opt['--pem']
-    }
+        execfile(_f)
+        return locals()
 
-    log_level = opt['--level']
+    config = _load_config(opt['--config'])
 
+    opts = {}
+    args = ['--host', '--port', '--db', '--key', '--interval',
+            '--listen-host', '--listen-port', '--pem',
+            '--level', '-d', '--logpath']
 
-    daemon = opt['-d']
+    for arg in args:
+        striped_arg = arg.lstrip('-')
+        opts[striped_arg] = config.get(striped_arg.replace('-', '_'), None) or opt[arg]
+
+    daemon = opts['d']
     if daemon:
-        logpath = opt['--logpath']
+        logpath = opts['logpath']
         if not logpath:
             sys.stderr.write("you enable daemonize, So must set the logpath.\n")
             sys.exit(1)
@@ -187,15 +188,35 @@ def main():
             sys.stderr.write("logpath must be absolute path.\n")
             sys.exit(2)
 
-        Daemonize(stdout=logpath, stderr=logpath).make_daemon()
+    return opts
 
+
+def main():
+    opts = get_opts()
+
+    backend_kwargs = {
+        'host': opts['host'],
+        'port': int(opts['port']),
+        'db': int(opts['db']),
+        'data_key': opts['key'],
+        'check_status_interval': int(opts['interval']),
+    }
+
+    interface_kwargs = {
+        'listener': (opts['listen-host'], int(opts['listen-port'])),
+        'pem': opts['pem']
+    }
+
+    log_level = opts['level']
+    if opts['d']:
+        logpath = opts['logpath']
+        Daemonize(stdout=logpath, stderr=logpath).make_daemon()
 
     TimeRush(
         interface_kwargs=interface_kwargs,
         backend_kwargs=backend_kwargs,
         log_level=log_level,
     ).run()
-
 
 
 if __name__ == '__main__':

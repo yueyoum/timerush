@@ -87,5 +87,5 @@ class TimerWorker(gevent.Greenlet):
     def _run(self):
         gevent.sleep(self.seconds)
         self.final_finished = True
-        logger.info("Worker finish. key: {0}".format(self.key))
+        logger.info("Worker finish. key: {0}. callback_data: {1}".format(self.key, self.callback_data))
 

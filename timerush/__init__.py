@@ -29,14 +29,14 @@ class TimeRush(object):
                  interface_kwargs=None,
                  backend_kwargs=None,
                  log_level='DEBUG'):
-        INTERFACE= INTERFACE_CLASS or HTTPInterface
-        BACKEND = BACKEND_CLASS or RedisBackend
+        INTERFACE_CLASS = INTERFACE_CLASS or HTTPInterface
+        BACKEND_CLASS = BACKEND_CLASS or RedisBackend
 
-        INTERFACE.install_timerush_object(self)
-        BACKEND.install_timerush_object(self)
+        INTERFACE_CLASS.install_timerush_object(self)
+        BACKEND_CLASS.install_timerush_object(self)
 
-        self.INTERFACE = INTERFACE(**interface_kwargs)
-        self.BACKEND = BACKEND(**backend_kwargs)
+        self.INTERFACE = INTERFACE_CLASS(**interface_kwargs)
+        self.BACKEND = BACKEND_CLASS(**backend_kwargs)
 
         self.register = self.BACKEND.register
         self.unregister = self.BACKEND.unregister
