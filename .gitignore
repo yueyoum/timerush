@@ -2,3 +2,4 @@
 *.log
 .idea
 env
+config.py
